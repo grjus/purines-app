@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Value</th>
+    </tr>
+    <tr>
+        <td>Alfreds Futterkiste</td>
+        <td>Maria Anders</td>
+        <td>Germany</td>
+    </tr>
+    <tr>
+        <td>Centro comercial Moctezuma</td>
+        <td>Francisco Chang</td>
+        <td>Mexico</td>
+    </tr>
+    {% for item in purines %}
+    <tr>
+        <td>{{ item.name }}</td>
+        <td>{{ item.value }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock content %}

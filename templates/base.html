@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.10"
+            integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC"
+            crossorigin="anonymous"></script>
+    <link
+            rel="stylesheet"
+            href="https://unpkg.com/@tailwindcss/typography@0.4.x/dist/typography.min.css"
+    />
+</head>
+<body>
+  <div class="py-2 bg-gray-300 h-12 text-lg text-bold flex justify-center">
+    Purines
+  </div>
+  <div class="flex justify-center p-2">
+    {% block content %}
+    <h1>Welcome to {{ title }}!</h1>
+  {% endblock content %}
+</body>
+  </div>
+
+</html>

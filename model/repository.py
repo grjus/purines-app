@@ -14,10 +14,6 @@ class Purine:
     name: str
     value: int
 
-    @classmethod
-    def to_dto(cls, result: tuple[str, str, int]) -> "Purine":
-        return cls(UUID(result[0]), result[1], result[2])
-
 
 class Repository(Generic[T], ABC):
     @abstractmethod
@@ -40,7 +36,7 @@ class PurineEntity(tuple):
         return Purine(UUID(self[0]), self[1], self[2])
 
 
-class PurinesRepository(Repository[Purine]):
+class PurinesRepository(Repository[PurineEntity]):
     def find_all_matching_query(self, query: str) -> list[PurineEntity]:
         if not query:
             return self.find_all()
@@ -58,7 +54,7 @@ class PurinesRepository(Repository[Purine]):
             return result
 
     def find_all(self) -> list[PurineEntity]:
-        with open_db() as cursor:
+        with open_db("../data.db") as cursor:
             query = "SELECT * FROM purines"
             result = cursor.execute(query).fetchall()
             return result
