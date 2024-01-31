@@ -1,27 +1,34 @@
 {% extends "base.html" %}
 
 {% block content %}
-<table>
-    <tr>
-        <th>Name</th>
-        <th>Value</th>
-    </tr>
-    <tr>
-        <td>Alfreds Futterkiste</td>
-        <td>Maria Anders</td>
-        <td>Germany</td>
-    </tr>
-    <tr>
-        <td>Centro comercial Moctezuma</td>
-        <td>Francisco Chang</td>
-        <td>Mexico</td>
-    </tr>
-    {% for item in purines %}
-    <tr>
-        <td>{{ item.name }}</td>
-        <td>{{ item.value }}</td>
-    </tr>
-    {% endfor %}
-</table>
+<div class="w-100">
+  <form>
+    <div class="mb-3">
+      <label for="searchQuery" class="form-label">Search</label>
+      <input type="text" class="form-control" id="searchQuery" aria-describedby="search">
+      
+    </div>
+  
+  </form>
+  <div class="overflow-auto" style="height: calc(100vh - 300px);">
+    <table class="table table-striped table-bordered" data-bs-theme="dark">
+      <thead class="sticky">
+          <tr>
+            <th scope="col">Product [100g]</th>
+            <th scope="col">Uric acid [g]</th>
+          </tr>
+        </thead>
+      {% for item in purines %}
+      <tr>
+          <td>{{ item.name }}</td>
+          <td>{{ item.value }}</td>
+      </tr>
+      {% endfor %}
+  </table>
+  </div>
+
+</div>
+
+
 
 {% endblock content %}

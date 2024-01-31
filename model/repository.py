@@ -3,6 +3,8 @@ from dataclasses import dataclass
 from typing import TypeVar, Generic
 from uuid import UUID
 
+import yaml
+
 from model.db import open_db
 
 T = TypeVar("T")
@@ -37,24 +39,32 @@ class PurineEntity(tuple):
 
 
 class PurinesRepository(Repository[PurineEntity]):
+    def __init__(self):
+        with open("./settings.yml", "r") as file:
+            config = yaml.safe_load(file)
+            db_path = config.get("sql").get("db_path")
+            if not db_path:
+                raise ValueError("Error finding database")
+            self.db_path = db_path
+
     def find_all_matching_query(self, query: str) -> list[PurineEntity]:
         if not query:
             return self.find_all()
-        with open_db() as cursor:
+        with open_db(self.db_path) as cursor:
             sql = "SELECT * FROM purines p WHERE p.name LIKE '%' || ? || '%'"
             cursor.execute(sql, (query,))
             results: list[PurineEntity] = cursor.fetchall()
             return results
 
     def find(self, uuid: UUID) -> PurineEntity | None:
-        with open_db() as cursor:
+        with open_db(self.db_path) as cursor:
             query = "SELECT * FROM purines WHERE uuid = ?"
             cursor.execute(query, (uuid.__str__(),))
             result: PurineEntity = cursor.fetchone()
             return result
 
     def find_all(self) -> list[PurineEntity]:
-        with open_db("../data.db") as cursor:
+        with open_db(self.db_path) as cursor:
             query = "SELECT * FROM purines"
             result = cursor.execute(query).fetchall()
-            return result
+            return list(map(PurineEntity, result))
