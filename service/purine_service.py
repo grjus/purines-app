@@ -8,3 +8,7 @@ class PurineService:
     def get_all_purines(self) -> list[Purine]:
         result = self.repository.find_all()
         return [each.to_dto() for each in result]
+
+    def get_all_purines_matching_query(self, query) -> list[Purine]:
+        result = self.repository.find_all_matching_query(query)
+        return [each.to_dto() for each in result]

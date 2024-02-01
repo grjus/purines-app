@@ -49,12 +49,12 @@ class PurinesRepository(Repository[PurineEntity]):
 
     def find_all_matching_query(self, query: str) -> list[PurineEntity]:
         if not query:
-            return self.find_all()
+            return list(map(PurineEntity, self.find_all()))
         with open_db(self.db_path) as cursor:
             sql = "SELECT * FROM purines p WHERE p.name LIKE '%' || ? || '%'"
             cursor.execute(sql, (query,))
-            results: list[PurineEntity] = cursor.fetchall()
-            return results
+            results = cursor.fetchall()
+            return list(map(PurineEntity, results))
 
     def find(self, uuid: UUID) -> PurineEntity | None:
         with open_db(self.db_path) as cursor:

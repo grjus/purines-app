@@ -1,6 +1,7 @@
+from typing import Optional
 import uvicorn
 import yaml
-from fastapi import FastAPI
+from fastapi import FastAPI, Header
 from starlette.requests import Request
 from starlette.responses import HTMLResponse
 from starlette.templating import Jinja2Templates
@@ -25,14 +26,18 @@ with open("./settings.yml", "r", encoding="utf-8") as file:
 
 
 @app.get("/", response_class=HTMLResponse)
-async def read_item(request: Request):
+async def purine_table(request: Request, hx_request: Optional[str] = Header(None)):
+
+    query = request.query_params.get("search")
     repository = PurinesRepository()
-    data = PurineService(repository).get_all_purines()
-    return templates.TemplateResponse(
-        "index.html", {"request": request, "purines": data}
-    )
+    service = PurineService(repository)
+    data = service.get_all_purines_matching_query(query)
+    context = {"request": request, "purines": data}
+    if hx_request:
+        return templates.TemplateResponse("purines-rows.html", context)
+    return templates.TemplateResponse("index.html", context)
 
 
 if __name__ == "__main__":
     DbInitialization(db_path, drop_db).initialize_db().populate_mock_data()
-    uvicorn.run("main:app", host="0.0.0.0", port=8080)
+    uvicorn.run("main:app", host="0.0.0.0", port=8080, reload=True)

@@ -4,7 +4,12 @@
     <div class="mb-3">
       <label for="searchQuery" class="form-label">Search</label>
       <input
-        type="text"
+        hx-get="/"
+        hx-params="search"
+        hx-trigger="input changed delay:500ms, search"
+        hx-target="#table-content"
+        type="search"
+        name="search"
         class="form-control"
         id="searchQuery"
         aria-describedby="search"
@@ -19,12 +24,9 @@
           <th scope="col">Uric acid [g]</th>
         </tr>
       </thead>
-      {% for item in purines %}
-      <tr>
-        <td>{{ item.name }}</td>
-        <td>{{ item.value }}</td>
-      </tr>
-      {% endfor %}
+      <tbody id="table-content">
+        {% include 'purines-rows.html' %}
+      </tbody>
     </table>
   </div>
 </div>
