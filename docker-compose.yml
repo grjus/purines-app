@@ -1,0 +1,14 @@
+version: "3.8"
+services:
+  purine-app:
+    container_name: purine_app
+    image: app_image
+    build: .
+    ports:
+      - "8080:8080" # Expose the port FastAPI runs on
+    volumes:
+      - .:/app # Mount the current directory to the container's workdir
+      - /usr/src/app/__pycache__ # Exclude the Python cache from the volume
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1

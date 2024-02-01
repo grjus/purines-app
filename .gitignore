@@ -2,4 +2,4 @@ scrapper
 settings.yml
 .idea
 data.db
-__pycache__
+**/__pycache__
