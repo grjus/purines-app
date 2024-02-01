@@ -1,0 +1,34 @@
+{% extends "base.html" %} {% block content %}
+<div class="w-100">
+  <form>
+    <div class="mb-3">
+      <label for="searchQuery" class="form-label">Search</label>
+      <input
+        hx-get="/"
+        hx-params="search"
+        hx-trigger="input changed delay:500ms, search"
+        hx-target="#table-content"
+        type="search"
+        name="search"
+        class="form-control"
+        id="searchQuery"
+        aria-describedby="search"
+      />
+    </div>
+  </form>
+  <div class="overflow-auto" style="height: calc(100vh - 300px)">
+    <table class="table table-striped table-bordered" data-bs-theme="dark">
+      <thead class="sticky">
+        <tr>
+          <th scope="col">Product [100g]</th>
+          <th scope="col">Uric acid [g]</th>
+        </tr>
+      </thead>
+      <tbody id="table-content">
+        {% include 'purines-rows.html' %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock content %}

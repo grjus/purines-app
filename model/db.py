@@ -16,13 +16,3 @@ def open_db(db_path: str) -> sqlite3.Cursor:
         connection.close()
 
 
-def initialize_db(db_path: str) -> None:
-    with open_db(db_path) as db:
-        sql = """
-        CREATE TABLE IF NOT EXISTS purines (
-        uuid TEXT,
-        name TEXT,
-        value INT
-        )
-        """
-        db.execute(sql)
