@@ -1,20 +1,35 @@
 {% extends "base.html" %} {% block content %}
 <div class="w-100">
-  <form>
-    <div class="mb-3">
-      <label for="searchQuery" class="form-label">Search</label>
-      <input
-        hx-get="/"
-        hx-params="search"
-        hx-trigger="input changed delay:500ms, search"
-        hx-target="#table-content"
-        type="search"
-        name="search"
-        class="form-control"
-        id="searchQuery"
-        aria-describedby="search"
-      />
-    </div>
+  <form class="mb-3">
+
+        <label for="searchQuery" class="form-label">Search</label>
+        <div class="d-flex align-items-center gap-2">
+          <input
+          hx-get="/"
+          hx-params="search"
+          hx-trigger="input changed delay:500ms, search"
+          hx-target="#table-content"
+          hx-headers='{"search": "True"}'
+          type="search"
+          name="search"
+          class="form-control"
+          id="searchQuery"
+          aria-describedby="search"
+        />
+      <button
+       hx-get="/show-modal"
+       hx-trigger="click"
+       hx-target="#modal-placeholder" 
+       data-bs-toggle="modal" 
+       data-bs-target="#modal-placeholder"
+       type="button" class="btn btn-primary text-nowrap">Add product</button>
+
+        </div>
+
+
+
+
+
   </form>
   <div class="overflow-auto" style="height: calc(100vh - 300px)">
     <table class="table table-striped table-bordered" data-bs-theme="dark">
@@ -29,6 +44,16 @@
       </tbody>
     </table>
   </div>
+</div>
+
+<div id="modal-placeholder"
+    class="modal modal-blur fade"
+    style="display: none"
+    aria-hidden="false"
+    tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content"></div>
+    </div>
 </div>
 
 {% endblock content %}

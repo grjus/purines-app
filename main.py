@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Annotated, Optional
 import uvicorn
 import yaml
 from fastapi import FastAPI, Header
@@ -26,7 +26,8 @@ with open("./settings.yml", "r", encoding="utf-8") as file:
 
 
 @app.get("/", response_class=HTMLResponse)
-async def purine_table(request: Request, hx_request: Optional[str] = Header(None)):
+async def purine_table(request: Request, hx_request: Annotated[list[str] | None, Header()] = None):
+    
 
     query = request.query_params.get("search")
     repository = PurinesRepository()
@@ -36,6 +37,26 @@ async def purine_table(request: Request, hx_request: Optional[str] = Header(None
     if hx_request:
         return templates.TemplateResponse("purines-rows.html", context)
     return templates.TemplateResponse("index.html", context)
+
+
+@app.get("/show-modal", response_class=HTMLResponse)
+async def show_modal(request:Request):
+    context = {"request": request}
+    return templates.TemplateResponse("add-product-modal.html", context)
+
+@app.post("/add-product")
+async def add_product(request:Request):
+    context = {"request": await request.form()}
+
+    print(context)
+    html_content = """
+        <div class="p-2">
+        <h6 class="text-success">Product sucessfully submitted</h6>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+        """
+    return HTMLResponse(content=html_content, status_code=200)
+
 
 
 if __name__ == "__main__":
