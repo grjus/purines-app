@@ -1,14 +1,13 @@
-from typing import Annotated, Any, Optional
+from typing import Optional
 import uvicorn
 import yaml
-import json
-from fastapi import FastAPI, Form, Header
+from fastapi import FastAPI, Header
 from starlette.requests import Request
 from starlette.responses import HTMLResponse
 from starlette.templating import Jinja2Templates
 from model.db_init import DbInitialization
-
-from model.repository import PurinesRepository
+from model.purine_repository import PurineFilter
+from service.purine_group_service import PurineGroupService
 from service.purine_service import PurineService
 
 
@@ -27,45 +26,30 @@ with open("./settings.yml", "r", encoding="utf-8") as file:
 
 
 @app.get("/", response_class=HTMLResponse)
-async def purine_table(
-    request: Request, hx_request: Annotated[list[str] | None, Header()] = None
-):
-
-    query = request.query_params.get("search")
-    # repository = PurinesRepository()
-    # service = PurineService(repository)
-    # data = service.get_all_purines_matching_query(query)
-    # context = {"request": request, "purines": data}
-    # if hx_request:
-    #     return templates.TemplateResponse("purines-rows.html", context)
-    return templates.TemplateResponse("index.html", {"request": request})
-
-
-@app.get("/show-modal", response_class=HTMLResponse)
-async def show_modal(request: Request):
-    context = {"request": request}
-    return templates.TemplateResponse("add-product-modal.html", context)
-
-
-@app.post("/add-product")
-async def add_product(name: Annotated[str, Form()], value: Annotated[str, Form()]):
-    def is_int(number: Any) -> bool:
-        try:
-            int(number) == number
-        except (TypeError, ValueError):
-            return False
-
-    if not name or not value or not is_int(value):
-        return HTMLResponse(
-            status_code=204,
-            headers={
-                "HX-Trigger": json.dumps(
-                    {"movieListChanged": None, "error": "Error addin info"}
+async def purine_table(request: Request, hx_request: Optional[str] = Header(None)):
+    if hx_request:
+        service = PurineService()
+        query = request.query_params
+        print(f"Keys: {query.keys()}")
+        context = {
+            "request": request,
+            "purines": service.get_all_purines_matching_query(
+                PurineFilter(
+                    query.get("search"),
+                    query.get("product-group"),
+                    bool(query.get("show-high")),
                 )
-            },
-        )
-
-    return templates.TemplateResponse("add-product-modal.html")
+            ),
+        }
+        return templates.TemplateResponse("purines-rows.html", context)
+    service = PurineService()
+    service_group = PurineGroupService()
+    context = {
+        "request": request,
+        "purines": service.get_all_purines(),
+        "purine_group": service_group.get_all_purine_groups(),
+    }
+    return templates.TemplateResponse("index.html", context)
 
 
 if __name__ == "__main__":

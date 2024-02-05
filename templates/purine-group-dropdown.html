@@ -1,11 +1,10 @@
-<div class="input-group">
-  <div class="input-group-prepend">
-    <label class="input-group-text" for="inputGroupSelect01">Options</label>
-  </div>
-  <select class="custom-select" id="inputGroupSelect01">
-    <option selected>Choose...</option>
-    <option value="1">One</option>
-    <option value="2">Two</option>
-    <option value="3">Three</option>
+
+  <select hx-include = "[name='search'],[name='show-high']" hx-get="/" hx-target="#table-content"  name="product-group" class="form-select" aria-label="Product group">
+    <option selected value="" >All Products</option>
+    {% for item in purine_group %}
+    <option value={{ item.uuid }} >{{ item.name }}</option>
+    {% endfor %}
   </select>
-</div>
+
+
+
