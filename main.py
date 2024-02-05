@@ -1,7 +1,8 @@
-from typing import Annotated, Optional
+from typing import Annotated, Any, Optional
 import uvicorn
 import yaml
-from fastapi import FastAPI, Header
+import json
+from fastapi import FastAPI, Form, Header
 from starlette.requests import Request
 from starlette.responses import HTMLResponse
 from starlette.templating import Jinja2Templates
@@ -26,39 +27,48 @@ with open("./settings.yml", "r", encoding="utf-8") as file:
 
 
 @app.get("/", response_class=HTMLResponse)
-async def purine_table(request: Request, hx_request: Annotated[list[str] | None, Header()] = None):
-    
+async def purine_table(
+    request: Request, hx_request: Annotated[list[str] | None, Header()] = None
+):
 
     query = request.query_params.get("search")
-    repository = PurinesRepository()
-    service = PurineService(repository)
-    data = service.get_all_purines_matching_query(query)
-    context = {"request": request, "purines": data}
-    if hx_request:
-        return templates.TemplateResponse("purines-rows.html", context)
-    return templates.TemplateResponse("index.html", context)
+    # repository = PurinesRepository()
+    # service = PurineService(repository)
+    # data = service.get_all_purines_matching_query(query)
+    # context = {"request": request, "purines": data}
+    # if hx_request:
+    #     return templates.TemplateResponse("purines-rows.html", context)
+    return templates.TemplateResponse("index.html", {"request": request})
 
 
 @app.get("/show-modal", response_class=HTMLResponse)
-async def show_modal(request:Request):
+async def show_modal(request: Request):
     context = {"request": request}
     return templates.TemplateResponse("add-product-modal.html", context)
 
+
 @app.post("/add-product")
-async def add_product(request:Request):
-    context = {"request": await request.form()}
+async def add_product(name: Annotated[str, Form()], value: Annotated[str, Form()]):
+    def is_int(number: Any) -> bool:
+        try:
+            int(number) == number
+        except (TypeError, ValueError):
+            return False
 
-    print(context)
-    html_content = """
-        <div class="p-2">
-        <h6 class="text-success">Product sucessfully submitted</h6>
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        </div>
-        """
-    return HTMLResponse(content=html_content, status_code=200)
+    if not name or not value or not is_int(value):
+        return HTMLResponse(
+            status_code=204,
+            headers={
+                "HX-Trigger": json.dumps(
+                    {"movieListChanged": None, "error": "Error addin info"}
+                )
+            },
+        )
 
+    return templates.TemplateResponse("add-product-modal.html")
 
 
 if __name__ == "__main__":
-    DbInitialization(db_path, drop_db).initialize_db().populate_mock_data()
+    if drop_db:
+        DbInitialization(db_path).init()
     uvicorn.run("main:app", host="0.0.0.0", port=8080, reload=True)

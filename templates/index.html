@@ -1,9 +1,10 @@
 {% extends "base.html" %} {% block content %}
 <div class="w-100">
   <form class="mb-3">
-
+    {% include 'purine-group-dropdown.html' %}
         <label for="searchQuery" class="form-label">Search</label>
         <div class="d-flex align-items-center gap-2">
+          
           <input
           hx-get="/"
           hx-params="search"
@@ -16,13 +17,14 @@
           id="searchQuery"
           aria-describedby="search"
         />
-      <button
+        
+      <!-- <button
        hx-get="/show-modal"
        hx-trigger="click"
        hx-target="#modal-placeholder" 
        data-bs-toggle="modal" 
        data-bs-target="#modal-placeholder"
-       type="button" class="btn btn-primary text-nowrap">Add product</button>
+       type="button" class="btn btn-primary text-nowrap">Add product</button> -->
 
         </div>
 
@@ -40,7 +42,6 @@
         </tr>
       </thead>
       <tbody id="table-content">
-        {% include 'purines-rows.html' %}
       </tbody>
     </table>
   </div>

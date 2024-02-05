@@ -1,4 +1,9 @@
 
+<script>
+    htmx.on("error", (e) => {
+  console.log(e.detail.value)
+})
+</script>
     
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -20,11 +25,12 @@
                 <div class="form-group">
                     <label for="product-value" class="form-label">Uric acid [g]</label>
                     <input
-                    type="text"
+                    type="number"
                     name="value"
                     id="product-value"
                     class="form-control"
                     aria-describedby="search"
+                    required
                     />
                 </div>
             
@@ -35,4 +41,6 @@
             
         </div>
       </div>
+
+
 
