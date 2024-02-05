@@ -14,13 +14,13 @@ class DbInitialization:
             DROP TABLE IF EXISTS purine;
             CREATE TABLE purine_group (
                 uuid TEXT PRIMARY KEY,
-                name TEXT
+                name TEXT NOT NULL
             );
             CREATE TABLE purine (
                         uuid TEXT PRIMARY KEY,
-                        name TEXT,
-                        value INTEGER,
-                        purine_group_uuid TEXT,
+                        name TEXT NOT NULL,
+                        value INTEGER NOT NULL,
+                        purine_group_uuid TEXT NOT NULL,
                         FOREIGN KEY (purine_group_uuid) REFERENCES "purine_group" (uuid)
                     );
             """

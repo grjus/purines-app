@@ -1,7 +1,10 @@
+"""Fast api"""
+
 from typing import Optional
+from pydantic import BaseModel, ValidationError, validator
 import uvicorn
 import yaml
-from fastapi import FastAPI, Header
+from fastapi import FastAPI, Form, Header
 from starlette.requests import Request
 from starlette.responses import HTMLResponse
 from starlette.templating import Jinja2Templates
@@ -50,6 +53,55 @@ async def purine_table(request: Request, hx_request: Optional[str] = Header(None
         "purine_group": service_group.get_all_purine_groups(),
     }
     return templates.TemplateResponse("index.html", context)
+
+
+@app.get("/template/create-purine-modal")
+async def get_create_purine_modal(request: Request):
+    service_group = PurineGroupService()
+    context = {
+        "request": request,
+        "purine_group": service_group.get_all_purine_groups(),
+    }
+    return templates.TemplateResponse("create-product-modal.html", context=context)
+
+
+class AddProductCommand(BaseModel):
+    name: str
+    value: int
+    group_uuid: str
+
+    @validator("group_uuid")
+    def check_group_exist(cls, value):
+        purine_group = PurineGroupService().find(value)
+        if not purine_group:
+            raise ValueError(f"Purine {value} does not exist")
+        return value
+
+
+@app.post("/api/add-product")
+async def create_product(
+    name: str = Form(...), value: int = Form(...), product_group: str = Form(...)
+):
+    print(name, value, product_group)
+    try:
+        add_product_command = AddProductCommand(
+            name=name,
+            value=value,
+            group_uuid=product_group,
+        )
+        PurineService().add_product(
+            add_product_command.name,
+            add_product_command.value,
+            add_product_command.group_uuid,
+        )
+
+        return HTMLResponse(
+            content="""<div class="alert alert-primary" role="alert">New product created</div>"""
+        )
+    except ValidationError as e:
+        return HTMLResponse(
+            content=f"""<div class="alert alert-primary" role="alert">Error creating product {e}</div>"""
+        )
 
 
 if __name__ == "__main__":

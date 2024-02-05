@@ -31,7 +31,7 @@ class PurineGroupRepository(Repository[PurineGroupEntity]):
         with open_db(self.db_path) as cursor:
             query = "SELECT * FROM purine_group"
             result = cursor.execute(query).fetchall()
-            return list(map(PurineGroupEntity, result))
+            return [PurineGroupEntity(each) for each in result]
 
     def find(self, uuid: UUID) -> PurineGroupEntity | None:
         with open_db(self.db_path) as cursor:

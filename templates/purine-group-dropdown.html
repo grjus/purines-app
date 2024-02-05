@@ -1,10 +1,11 @@
-
-  <select hx-include = "[name='search'],[name='show-high']" hx-get="/" hx-target="#table-content"  name="product-group" class="form-select" aria-label="Product group">
-    <option selected value="" >All Products</option>
-    {% for item in purine_group %}
-    <option value={{ item.uuid }} >{{ item.name }}</option>
-    {% endfor %}
-  </select>
-
-
-
+<select
+  hx-include="[name='search'], [name='show-high']"
+  hx-get="/"
+  hx-target="#table-content"
+  name="product-group"
+  class="form-select"
+  aria-label="Product group"
+>
+<option selected value="">All Products</option>
+{% include 'purine-group-options.html' %}
+</select>

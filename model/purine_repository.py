@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 
-from uuid import UUID
+from uuid import UUID, uuid4
 from model.db import open_db
 
 from model.repository import Repository
@@ -50,12 +50,10 @@ class PurineRepository(Repository[PurineEntity]):
             if conditions:
                 sql += "WHERE " + " AND ".join(conditions)
 
-            print(sql)
-
             cursor.execute(sql, tuple(params))
             results = cursor.fetchall()
 
-            return list(map(PurineEntity, results))
+            return [PurineEntity(each) for each in results]
 
     def find(self, uuid: UUID) -> PurineEntity | None:
         with open_db(self.db_path) as cursor:
@@ -67,5 +65,21 @@ class PurineRepository(Repository[PurineEntity]):
     def find_all(self) -> list[PurineEntity]:
         with open_db(self.db_path) as cursor:
             query = "SELECT * FROM purine"
-            result = cursor.execute(query).fetchall()
-            return list(map(PurineEntity, result))
+            results = cursor.execute(query).fetchall()
+            return [PurineEntity(each) for each in results]
+
+    def add_product(self, name: str, value: int, group_uuid: str):
+        with open_db(self.db_path) as cursor:
+            try:
+                query = "INSERT into purine(uuid, name, value, purine_group_uuid) VALUES (?,?,?,?)"
+                cursor.execute(
+                    query,
+                    (
+                        str(uuid4()),
+                        name,
+                        value,
+                        group_uuid,
+                    ),
+                )
+            except Exception as e:
+                print("Error creating entity")
