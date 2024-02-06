@@ -6,6 +6,7 @@ from uuid import UUID, uuid4
 from model.db import open_db
 
 from model.repository import Repository
+from loguru import logger
 
 
 @dataclass
@@ -33,7 +34,6 @@ class PurineEntity(tuple):
 class PurineRepository(Repository[PurineEntity]):
 
     def find_all_matching_filter(self, filt: PurineFilter) -> list[PurineEntity]:
-        print(f"CHECKBOX: {filt.show_high}")
         with open_db(self.db_path) as cursor:
             sql = "SELECT * FROM purine p "
             params = []
@@ -82,4 +82,4 @@ class PurineRepository(Repository[PurineEntity]):
                     ),
                 )
             except Exception as e:
-                print("Error creating entity")
+                logger.error(f"Failed to created an entity: {e}")

@@ -2,12 +2,16 @@
 <div class="w-100">
   <div class="d-flex justify-content-end">
     <button
-    hx-get="/template/create-purine-modal"
-    hx-trigger="click"
-    hx-target="#modal-placeholder" 
-    data-bs-toggle="modal" 
-    data-bs-target="#modal-placeholder"
-    type="button" class="btn btn-primary text-nowrap">Add product</button>
+      hx-get="/template/create-purine-modal"
+      hx-trigger="click"
+      hx-target="#modal-placeholder"
+      data-bs-toggle="modal"
+      data-bs-target="#modal-placeholder"
+      type="button"
+      class="btn btn-primary text-nowrap"
+    >
+      Add product
+    </button>
   </div>
 
   <form class="mb-3">
@@ -26,8 +30,6 @@
         aria-describedby="search"
       />
       {% include 'purine-group-dropdown.html' %}
-
-
     </div>
     <div class="d-flex justify-content-end mt-2 gap-1">
       <input

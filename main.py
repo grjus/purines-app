@@ -1,6 +1,9 @@
 """Fast api"""
 
+from fastapi.staticfiles import StaticFiles
+from loguru import logger
 from typing import Optional
+
 from pydantic import BaseModel, ValidationError, validator
 import uvicorn
 import yaml
@@ -18,6 +21,7 @@ app = FastAPI()
 
 
 templates = Jinja2Templates(directory="templates")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 with open("./settings.yml", "r", encoding="utf-8") as file:
@@ -33,14 +37,18 @@ async def purine_table(request: Request, hx_request: Optional[str] = Header(None
     if hx_request:
         service = PurineService()
         query = request.query_params
-        print(f"Keys: {query.keys()}")
+        search = query.get("search")
+        product_group = query.get("product-group")
+        show_high = query.get("show-high")
+        if show_high == "undefined":
+            show_high = None
         context = {
             "request": request,
             "purines": service.get_all_purines_matching_query(
                 PurineFilter(
-                    query.get("search"),
-                    query.get("product-group"),
-                    bool(query.get("show-high")),
+                    search,
+                    product_group,
+                    bool(show_high),
                 )
             ),
         }
@@ -79,10 +87,11 @@ class AddProductCommand(BaseModel):
 
 
 @app.post("/api/add-product")
-async def create_product(
+async def create_product(request:Request,
     name: str = Form(...), value: int = Form(...), product_group: str = Form(...)
 ):
-    print(name, value, product_group)
+    logger.debug(name, value, product_group)
+    if(request.sta)
     try:
         add_product_command = AddProductCommand(
             name=name,
