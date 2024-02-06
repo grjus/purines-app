@@ -6,10 +6,10 @@
     <div class="modal-body" id="modal-body">
       <form
         hx-post="/api/add-product/"
-       
+        hx-on::after-request="this.reset()"
         class="d-flex flex-column gap-2"
         hx-target="#create-product-submit-response"
-        hx-target-422="#create-product-submit-response"
+        hx-target-error="#create-product-submit-response"
       >
         <div class="d-flex justify-content-between gap-2">
           <div class="form-group">
@@ -20,7 +20,6 @@
               id="product-name"
               class="form-control"
               aria-describedby="search"
-
             />
           </div>
           <div class="form-group">
@@ -31,7 +30,6 @@
               id="product-value"
               class="form-control"
               aria-describedby="search"
-
             />
           </div>
         </div>
@@ -49,7 +47,6 @@
             type="button"
             class="btn btn-secondary"
             data-bs-dismiss="modal"
-            hx-on:click = "handleAlert()"
           >
             Close
           </button>

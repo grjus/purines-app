@@ -1,3 +1,3 @@
-const handleAlert = ()=>{
-    alert("Hello there")
-}
+const handleAlert = () => {
+  alert("Hello there");
+};

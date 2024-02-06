@@ -2,5 +2,5 @@ scrapper
 settings.yml
 .idea
 data.db
-**/__pycache__
-**/*.pyc
+*.pyc
+*/__pycache__/

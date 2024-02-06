@@ -1,5 +1,6 @@
 """Fast api"""
 
+from fastapi.exceptions import RequestValidationError
 from fastapi.staticfiles import StaticFiles
 from loguru import logger
 from typing import Optional
@@ -86,12 +87,20 @@ class AddProductCommand(BaseModel):
         return value
 
 
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request, exc):
+    return HTMLResponse(
+        content="""<div class="alert alert-danger" role="alert">
+  Error adding product. Verify your input data.
+</div>"""
+    )
+
+
 @app.post("/api/add-product")
-async def create_product(request:Request,
+async def create_product(
     name: str = Form(...), value: int = Form(...), product_group: str = Form(...)
 ):
     logger.debug(name, value, product_group)
-    if(request.sta)
     try:
         add_product_command = AddProductCommand(
             name=name,
@@ -105,12 +114,12 @@ async def create_product(request:Request,
         )
 
         return HTMLResponse(
-            content="""<div class="alert alert-primary" role="alert">New product created</div>"""
+            content="""<div class="alert alert-success" role="alert">
+ Your product has been added
+</div>"""
         )
     except ValidationError as e:
-        return HTMLResponse(
-            content=f"""<div class="alert alert-primary" role="alert">Error creating product {e}</div>"""
-        )
+        logger.error(f"Failed to add product: {e}")
 
 
 if __name__ == "__main__":
