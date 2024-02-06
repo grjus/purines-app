@@ -1,0 +1,58 @@
+<div hx-ext="response-targets" class="modal-dialog modal-dialog-centered">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title">Add purine data</h5>
+    </div>
+    <div class="modal-body" id="modal-body">
+      <form
+        hx-post="/api/add-product/"
+        hx-on::after-request="this.reset()"
+        class="d-flex flex-column gap-2"
+        hx-target="#create-product-submit-response"
+        hx-target-error="#create-product-submit-response"
+      >
+        <div class="d-flex justify-content-between gap-2">
+          <div class="form-group">
+            <label for="product-name" class="form-label">Product name</label>
+            <input
+              type="text"
+              name="name"
+              id="product-name"
+              class="form-control"
+              aria-describedby="search"
+            />
+          </div>
+          <div class="form-group">
+            <label for="product-value" class="form-label">Uric acid [g]</label>
+            <input
+              type="number"
+              name="value"
+              id="product-value"
+              class="form-control"
+              aria-describedby="search"
+            />
+          </div>
+        </div>
+        <select
+          name="product_group"
+          class="form-select"
+          aria-label="Product group"
+        >
+          {% include 'purine-group-options.html' %}
+        </select>
+        <span id="create-product-submit-response"></span>
+
+        <div class="modal-footer d-flex justify-content-between">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Close
+          </button>
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

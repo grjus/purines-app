@@ -1,10 +1,11 @@
 import logging
 import sqlite3
 from contextlib import contextmanager
+from typing import Generator, Any
 
 
 @contextmanager
-def open_db(db_path: str) -> sqlite3.Cursor:
+def open_db(db_path: str) -> Generator[sqlite3.Cursor, Any, Any]:
     connection = sqlite3.connect(db_path)
     try:
         cursor = connection.cursor()
@@ -14,5 +15,3 @@ def open_db(db_path: str) -> sqlite3.Cursor:
     finally:
         connection.commit()
         connection.close()
-
-
