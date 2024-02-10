@@ -1,6 +1,21 @@
 {% for item in purines %}
 <tr>
   <td>{{ item.name }}</td>
-  <td>{{ item.value }}</td>
+  <td class="d-flex justify-content-between">
+    {{ item.value }}
+    <form
+      hx-delete="/api/delete-product/{{item.uuid}}"
+      hx-target="#table-content"
+      hx-include="[name='search'], [name='product-group']"
+    >
+      <button
+        class="btn btn-danger"
+        type="submit"
+        hx-vals="js:{search: document.querySelector('#searchQuery').value}"
+      >
+        Delete
+      </button>
+    </form>
+  </td>
 </tr>
 {% endfor %}
