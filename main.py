@@ -122,6 +122,28 @@ async def create_product(
         logger.error(f"Failed to add product: {e}")
 
 
+@app.delete("/api/delete-product/{product_uuid}")
+async def delete_product(request: Request, product_uuid: str):
+    try:
+        service = PurineService()
+        service.delete_product(product_uuid)
+        form = await request.form()
+        logger.info(form.items())
+        search = str(form.get("search"))
+        product_group = str(form.get("product-group"))
+        show_high = form.get("show-high")
+        if show_high == "undefined":
+            show_high = None
+        logger.info(f"Some information: {search},{product_group},{bool(show_high)}")
+        purines = service.get_all_purines_matching_query(
+            PurineFilter(search, product_group, bool(show_high))
+        )
+        context = {"request": request, "purines": purines}
+        return templates.TemplateResponse("purines-rows.html", context=context)
+    except ValueError as e:
+        logger.error(f"Failed to delete product: {product_uuid}", e)
+
+
 if __name__ == "__main__":
     if drop_db:
         DbInitialization(db_path).init()

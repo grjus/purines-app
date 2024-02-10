@@ -1,5 +1,6 @@
 """ Purine service"""
 
+from uuid import UUID
 from model.purine_repository import Purine, PurineFilter, PurineRepository
 
 
@@ -20,3 +21,9 @@ class PurineService:
     def add_product(self, name: str, value: int, group_uuid: str) -> bool:
         self.repository.add_product(name, value, group_uuid)
         return True
+
+    def delete_product(self, uuid: str) -> None:
+        product = self.repository.find(UUID(uuid))
+        if product is None:
+            raise ValueError(f"Purine with id: {uuid} does not exists")
+        self.repository.delete(UUID(uuid))

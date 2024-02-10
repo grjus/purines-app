@@ -57,7 +57,7 @@ class PurineRepository(Repository[PurineEntity]):
 
     def find(self, uuid: UUID) -> PurineEntity | None:
         with open_db(self.db_path) as cursor:
-            query = "SELECT * FROM purines WHERE uuid = ?"
+            query = "SELECT * FROM purine WHERE uuid = ?"
             cursor.execute(query, (str(uuid),))
             result = cursor.fetchone()
             return PurineEntity(result)
@@ -83,3 +83,11 @@ class PurineRepository(Repository[PurineEntity]):
                 )
             except Exception as e:
                 logger.error(f"Failed to created an entity: {e}")
+
+    def delete(self, uuid: UUID):
+        with open_db(self.db_path) as cursor:
+            try:
+                sql = "DELETE FROM purine WHERE uuid = ?"
+                cursor.execute(sql, (str(uuid),))
+            except Exception as e:
+                logger.error(f"Failed to delete product: {uuid}", e)
