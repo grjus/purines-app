@@ -2,16 +2,18 @@
 
 from fastapi.exceptions import RequestValidationError
 from fastapi.staticfiles import StaticFiles
+from injector import Injector
 from loguru import logger
 from typing import Optional
 
 from pydantic import BaseModel, ValidationError, validator
 import uvicorn
 import yaml
-from fastapi import FastAPI, Form, Header
+from fastapi import Depends, FastAPI, Form, Header
 from starlette.requests import Request
 from starlette.responses import HTMLResponse
 from starlette.templating import Jinja2Templates
+from config.di_config import AppModule
 from model.db import DatabaseConfig
 from model.db_init import DbInitialization
 from model.purine_repository import PurineFilter, PurineRepository
@@ -21,6 +23,11 @@ from service.purine_service import PurineService
 
 
 app = FastAPI()
+injector = Injector([AppModule])
+
+
+def get_purine_service_provider():
+    return injector.get(PurineService)
 
 
 templates = Jinja2Templates(directory="templates")
@@ -36,8 +43,11 @@ with open("./settings.yml", "r", encoding="utf-8") as file:
 
 
 @app.get("/", response_class=HTMLResponse)
-async def purine_table(request: Request, hx_request: Optional[str] = Header(None)):
-    service = PurineService(PurineRepository(DatabaseConfig(db_path)))
+async def purine_table(
+    request: Request,
+    hx_request: Optional[str] = Header(None),
+    service=Depends(get_purine_service_provider),
+):
     if hx_request:
         query = request.query_params
         search = query.get("search")
@@ -65,84 +75,84 @@ async def purine_table(request: Request, hx_request: Optional[str] = Header(None
     return templates.TemplateResponse("index.html", context)
 
 
-@app.get("/template/create-purine-modal")
-async def get_create_purine_modal(request: Request):
-    service_group = PurineGroupService(PurineGroupRepository(DatabaseConfig(db_path)))
-    context = {
-        "request": request,
-        "purine_group": service_group.get_all_purine_groups(),
-    }
-    return templates.TemplateResponse("create-product-modal.html", context=context)
+# @app.get("/template/create-purine-modal")
+# async def get_create_purine_modal(request: Request):
+#     service_group = PurineGroupService(PurineGroupRepository(DatabaseConfig(db_path)))
+#     context = {
+#         "request": request,
+#         "purine_group": service_group.get_all_purine_groups(),
+#     }
+#     return templates.TemplateResponse("create-product-modal.html", context=context)
 
 
-class AddProductCommand(BaseModel):
-    name: str
-    value: int
-    group_uuid: str
+# class AddProductCommand(BaseModel):
+#     name: str
+#     value: int
+#     group_uuid: str
 
-    @validator("group_uuid")
-    def check_group_exist(cls, value):
-        purine_group = PurineGroupService().find(value)
-        if not purine_group:
-            raise ValueError(f"Purine {value} does not exist")
-        return value
-
-
-@app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request, exc):
-    return HTMLResponse(
-        content="""<div class="alert alert-danger" role="alert">
-  Error adding product. Verify your input data.
-</div>"""
-    )
+#     @validator("group_uuid")
+#     def check_group_exist(cls, value):
+#         purine_group = PurineGroupService().find(value)
+#         if not purine_group:
+#             raise ValueError(f"Purine {value} does not exist")
+#         return value
 
 
-@app.post("/api/add-product")
-async def create_product(
-    name: str = Form(...), value: int = Form(...), product_group: str = Form(...)
-):
-    logger.debug(name, value, product_group)
-    try:
-        add_product_command = AddProductCommand(
-            name=name,
-            value=value,
-            group_uuid=product_group,
-        )
-        PurineService().add_product(
-            add_product_command.name,
-            add_product_command.value,
-            add_product_command.group_uuid,
-        )
-
-        return HTMLResponse(
-            content="""<div class="alert alert-success" role="alert">
- Your product has been added
-</div>"""
-        )
-    except ValidationError as e:
-        logger.error(f"Failed to add product: {e}")
+# @app.exception_handler(RequestValidationError)
+# async def validation_exception_handler(request, exc):
+#     return HTMLResponse(
+#         content="""<div class="alert alert-danger" role="alert">
+#   Error adding product. Verify your input data.
+# </div>"""
+#     )
 
 
-@app.delete("/api/delete-product/{product_uuid}")
-async def delete_product(request: Request, product_uuid: str):
-    try:
-        service = PurineService()
-        service.delete_product(product_uuid)
-        form = await request.form()
-        logger.info(form.items())
-        search = str(form.get("search"))
-        product_group = str(form.get("product-group"))
-        show_high = form.get("show-high")
-        if show_high == "undefined":
-            show_high = None
-        logger.info(f"Some information: {search},{product_group},{bool(show_high)}")
-        purines = service.get_all_purines_matching_query(
-            PurineFilter(search, product_group, bool(show_high))
-        )
-        context = {"request": request, "purines": purines}
-        return templates.TemplateResponse("purines-rows.html", context=context)
-    except ValueError as e:
-        logger.error(f"Failed to delete product: {product_uuid}", e)
+# @app.post("/api/add-product")
+# async def create_product(
+#     name: str = Form(...), value: int = Form(...), product_group: str = Form(...)
+# ):
+#     logger.debug(name, value, product_group)
+#     try:
+#         add_product_command = AddProductCommand(
+#             name=name,
+#             value=value,
+#             group_uuid=product_group,
+#         )
+#         PurineService().add_product(
+#             add_product_command.name,
+#             add_product_command.value,
+#             add_product_command.group_uuid,
+#         )
+
+#         return HTMLResponse(
+#             content="""<div class="alert alert-success" role="alert">
+#  Your product has been added
+# </div>"""
+#         )
+#     except ValidationError as e:
+#         logger.error(f"Failed to add product: {e}")
+
+
+# @app.delete("/api/delete-product/{product_uuid}")
+# async def delete_product(request: Request, product_uuid: str):
+#     try:
+#         service = PurineService()
+#         service.delete_product(product_uuid)
+#         form = await request.form()
+#         logger.info(form.items())
+#         search = str(form.get("search"))
+#         product_group = str(form.get("product-group"))
+#         show_high = form.get("show-high")
+#         if show_high == "undefined":
+#             show_high = None
+#         logger.info(f"Some information: {search},{product_group},{bool(show_high)}")
+#         purines = service.get_all_purines_matching_query(
+#             PurineFilter(search, product_group, bool(show_high))
+#         )
+#         context = {"request": request, "purines": purines}
+#         return templates.TemplateResponse("purines-rows.html", context=context)
+#     except ValueError as e:
+#         logger.error(f"Failed to delete product: {product_uuid}", e)
 
 
 if __name__ == "__main__":

@@ -3,6 +3,8 @@
 from dataclasses import dataclass
 
 from uuid import UUID, uuid4
+
+
 from model.db import DatabaseConfig, open_db
 
 from model.repository import Repository
