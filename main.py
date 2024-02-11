@@ -12,8 +12,10 @@ from fastapi import FastAPI, Form, Header
 from starlette.requests import Request
 from starlette.responses import HTMLResponse
 from starlette.templating import Jinja2Templates
+from model.db import DatabaseConfig
 from model.db_init import DbInitialization
-from model.purine_repository import PurineFilter
+from model.purine_repository import PurineFilter, PurineRepository
+from model.purine_group_repository import PurineGroupRepository
 from service.purine_group_service import PurineGroupService
 from service.purine_service import PurineService
 
@@ -35,8 +37,8 @@ with open("./settings.yml", "r", encoding="utf-8") as file:
 
 @app.get("/", response_class=HTMLResponse)
 async def purine_table(request: Request, hx_request: Optional[str] = Header(None)):
+    service = PurineService(PurineRepository(DatabaseConfig(db_path)))
     if hx_request:
-        service = PurineService()
         query = request.query_params
         search = query.get("search")
         product_group = query.get("product-group")
@@ -54,8 +56,7 @@ async def purine_table(request: Request, hx_request: Optional[str] = Header(None
             ),
         }
         return templates.TemplateResponse("purines-rows.html", context)
-    service = PurineService()
-    service_group = PurineGroupService()
+    service_group = PurineGroupService(PurineGroupRepository(DatabaseConfig(db_path)))
     context = {
         "request": request,
         "purines": service.get_all_purines(),
@@ -66,7 +67,7 @@ async def purine_table(request: Request, hx_request: Optional[str] = Header(None
 
 @app.get("/template/create-purine-modal")
 async def get_create_purine_modal(request: Request):
-    service_group = PurineGroupService()
+    service_group = PurineGroupService(PurineGroupRepository(DatabaseConfig(db_path)))
     context = {
         "request": request,
         "purine_group": service_group.get_all_purine_groups(),

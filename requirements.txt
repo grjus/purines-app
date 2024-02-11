@@ -10,6 +10,8 @@ cryptography==41.0.7
 fastapi==0.103.0
 h11==0.14.0
 idna==3.4
+iniconfig==2.0.0
+injector==0.21.0
 Jinja2==3.1.2
 libretranslatepy==2.1.1
 loguru==0.7.2
@@ -20,10 +22,12 @@ packaging==23.1
 pathspec==0.10.3
 pip==24.0
 platformdirs==3.10.0
+pluggy==1.4.0
 pycparser==2.21
 pydantic==1.10.12
 pyOpenSSL==23.2.0
 PySocks==1.7.1
+pytest==8.0.0
 python-multipart==0.0.6
 PyYAML==6.0.1
 requests==2.31.0

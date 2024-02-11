@@ -1,29 +1,30 @@
 """ Purine service"""
 
-from uuid import UUID
-from model.purine_repository import Purine, PurineFilter, PurineRepository
+from model.purine_repository import Purine, PurineEntity, PurineFilter
+from model.repository import Repository
 
 
 class PurineService:
-    def __init__(
-        self,
-    ):
-        self.repository = PurineRepository()
+    def __init__(self, repository: Repository):
+        self.repository = repository
 
     def get_all_purines(self) -> list[Purine]:
-        result = self.repository.find_all()
+        result = self.repository.find_all(filter_params=None)
         return [each.to_dto() for each in result]
 
-    def get_all_purines_matching_query(self, filt: PurineFilter) -> list[Purine]:
-        result = self.repository.find_all_matching_filter(filt)
+    def get_all_purines_matching_query(
+        self, filter_params: PurineFilter
+    ) -> list[Purine]:
+        result = self.repository.find_all(filter_params)
         return [each.to_dto() for each in result]
 
     def add_product(self, name: str, value: int, group_uuid: str) -> bool:
-        self.repository.add_product(name, value, group_uuid)
+        entity = PurineEntity((name, value, group_uuid))
+        self.repository.add(entity)
         return True
 
     def delete_product(self, uuid: str) -> None:
-        product = self.repository.find(UUID(uuid))
+        product = self.repository.find(uuid)
         if product is None:
             raise ValueError(f"Purine with id: {uuid} does not exists")
-        self.repository.delete(UUID(uuid))
+        self.repository.delete(uuid)
