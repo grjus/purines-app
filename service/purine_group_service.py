@@ -9,7 +9,7 @@ class PurineGroupService:
         self.repository = repository
 
     def get_all_purine_groups(self) -> list[PurineGroup]:
-        result = self.repository.find_all(filter_params=None)
+        result = self.repository.find_all(None)
         return [each.to_dto() for each in result]
 
     def find(self, uuid) -> PurineGroup | None:

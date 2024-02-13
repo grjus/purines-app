@@ -4,7 +4,6 @@ from dataclasses import dataclass
 from uuid import UUID
 
 from model.db import DatabaseConfig, open_db
-
 from model.repository import Repository
 
 
@@ -25,11 +24,10 @@ class PurineGroupEntity(tuple):
 
 
 class PurineGroupRepository(Repository[PurineGroupEntity]):
-
     def __init__(self, db_config: DatabaseConfig) -> None:
         self.db_config = db_config
 
-    def find_all(self, _: None) -> list[PurineGroupEntity]:
+    def find_all(self, _=None) -> list[PurineGroupEntity]:
         with open_db(self.db_config) as cursor:
             query = "SELECT * FROM purine_group"
             result = cursor.execute(query).fetchall()
@@ -42,7 +40,7 @@ class PurineGroupRepository(Repository[PurineGroupEntity]):
             return PurineGroupEntity(result)
 
     def add(self, _: PurineGroupEntity):
-        raise ValueError("Not implemented yet")
+        raise NotImplementedError("Not implemented")
 
     def delete(self, _: str) -> bool:
-        raise ValueError("Not implemented")
+        raise NotImplementedError("Not implemented")

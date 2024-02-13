@@ -1,14 +1,13 @@
 """Purine repository"""
 
+import sqlite3
 from dataclasses import dataclass
-
 from uuid import UUID, uuid4
 
+from loguru import logger
 
 from model.db import DatabaseConfig, open_db
-
 from model.repository import Repository
-from loguru import logger
 
 
 @dataclass
@@ -26,7 +25,6 @@ class PurineFilter:
 
 
 class PurineEntity(tuple):
-
     def to_dto(self) -> Purine:
         if len(self) != 4:
             raise ValueError("Invalid sql result")
@@ -34,22 +32,21 @@ class PurineEntity(tuple):
 
 
 class PurineRepository(Repository[PurineEntity]):
-
     def __init__(self, db_config: DatabaseConfig):
         self.db_config = db_config
 
-    def find_all(self, filter_params: PurineFilter) -> list[PurineEntity]:
+    def find_all(self, filter_params: PurineFilter | None) -> list[PurineEntity]:
         with open_db(self.db_config) as cursor:
             sql = "SELECT * FROM purine p "
             params = []
             conditions = []
-            if filter_params.query:
+            if filter_params and filter_params.query:
                 conditions.append("p.name LIKE '%' || ? || '%'")
                 params.append(filter_params.query)
-            if filter_params.group_uuid:
+            if filter_params and filter_params.group_uuid:
                 conditions.append("p.purine_group_uuid = ?")
                 params.append(filter_params.group_uuid)
-            if filter_params.show_high:
+            if filter_params and filter_params.show_high:
                 conditions.append("p.value > 100")
 
             if conditions:
@@ -60,14 +57,14 @@ class PurineRepository(Repository[PurineEntity]):
 
             return [PurineEntity(each) for each in results]
 
-    def find(self, uuid: UUID) -> PurineEntity | None:
+    def find(self, uuid: str) -> PurineEntity | None:
         with open_db(self.db_config) as cursor:
             query = "SELECT * FROM purine WHERE uuid = ?"
             cursor.execute(query, (str(uuid),))
             result = cursor.fetchone()
             return PurineEntity(result)
 
-    def add(self, name: str, value: int, group_uuid: str):
+    def add(self, entity: PurineEntity):
         with open_db(self.db_config) as cursor:
             try:
                 query = "INSERT into purine(uuid, name, value, purine_group_uuid) VALUES (?,?,?,?)"
@@ -75,18 +72,18 @@ class PurineRepository(Repository[PurineEntity]):
                     query,
                     (
                         str(uuid4()),
-                        name,
-                        value,
-                        group_uuid,
+                        *entity,
                     ),
                 )
-            except Exception as e:
+            except sqlite3.DatabaseError as e:
                 logger.error(f"Failed to created an entity: {e}")
 
-    def delete(self, uuid: UUID):
+    def delete(self, uuid: str) -> bool:
         with open_db(self.db_config) as cursor:
             try:
                 sql = "DELETE FROM purine WHERE uuid = ?"
-                cursor.execute(sql, (str(uuid),))
-            except Exception as e:
+                cursor.execute(sql, (uuid,))
+                return True
+            except sqlite3.DatabaseError as e:
                 logger.error(f"Failed to delete product: {uuid}", e)
+                return False
