@@ -1,3 +1,5 @@
+""" Create command"""
+
 from pydantic import BaseModel
 
 

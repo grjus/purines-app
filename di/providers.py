@@ -1,7 +1,8 @@
-from dataclasses import dataclass
-from fastapi import Depends
+""" Dependency Injection for FastApi"""
 
 import yaml
+from fastapi import Depends
+
 from model.db import DatabaseConfig
 from model.purine_group_repository import PurineGroupRepository
 from model.purine_repository import PurineRepository

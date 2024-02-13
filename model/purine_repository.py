@@ -2,9 +2,9 @@
 
 import sqlite3
 from dataclasses import dataclass
-from uuid import UUID, uuid4
 
 from loguru import logger
+from pydantic import BaseModel
 
 from model.db import DatabaseConfig, open_db
 from model.repository import Repository
@@ -12,7 +12,7 @@ from model.repository import Repository
 
 @dataclass
 class Purine:
-    uuid: UUID
+    uuid: str
     name: str
     value: int
 
@@ -24,11 +24,18 @@ class PurineFilter:
     show_high: bool | None
 
 
-class PurineEntity(tuple):
+class PurineEntity(BaseModel):
+    uuid: str
+    name: str
+    value: int
+    group_uuid: str
+
+    def __init__(self, *args):
+        fields = ["uuid", "name", "value", "group_uuid"]
+        super().__init__(**dict(zip(fields, args)))
+
     def to_dto(self) -> Purine:
-        if len(self) != 4:
-            raise ValueError("Invalid sql result")
-        return Purine(UUID(self[0]), self[1], self[2])
+        return Purine(self.uuid, self.name, self.value)
 
 
 class PurineRepository(Repository[PurineEntity]):
@@ -55,14 +62,14 @@ class PurineRepository(Repository[PurineEntity]):
             cursor.execute(sql, tuple(params))
             results = cursor.fetchall()
 
-            return [PurineEntity(each) for each in results]
+            return [PurineEntity(*each) for each in results]
 
     def find(self, uuid: str) -> PurineEntity | None:
         with open_db(self.db_config) as cursor:
             query = "SELECT * FROM purine WHERE uuid = ?"
             cursor.execute(query, (str(uuid),))
             result = cursor.fetchone()
-            return PurineEntity(result)
+            return PurineEntity(*result)
 
     def add(self, entity: PurineEntity):
         with open_db(self.db_config) as cursor:
@@ -70,10 +77,7 @@ class PurineRepository(Repository[PurineEntity]):
                 query = "INSERT into purine(uuid, name, value, purine_group_uuid) VALUES (?,?,?,?)"
                 cursor.execute(
                     query,
-                    (
-                        str(uuid4()),
-                        *entity,
-                    ),
+                    (*entity.dict().values(),),
                 )
             except sqlite3.DatabaseError as e:
                 logger.error(f"Failed to created an entity: {e}")

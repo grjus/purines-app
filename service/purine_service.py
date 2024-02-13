@@ -1,5 +1,7 @@
 """ Purine service"""
 
+from uuid import uuid4
+
 from model.purine_repository import Purine, PurineEntity, PurineFilter
 from model.repository import Repository
 from service.command import AddProductCommand
@@ -20,7 +22,9 @@ class PurineService:
         return [each.to_dto() for each in result]
 
     def add_product(self, command: AddProductCommand) -> bool:
-        entity = PurineEntity((command.name, command.value, command.group_uuid))
+        entity = PurineEntity(
+            str(uuid4()), command.name, command.value, command.group_uuid
+        )
         self.repository.add(entity)
         return True
 

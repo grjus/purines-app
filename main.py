@@ -1,20 +1,14 @@
 """Fast api"""
 
+import uvicorn
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from fastapi.staticfiles import StaticFiles
-
-
-import uvicorn
-
 from starlette.responses import HTMLResponse
 from starlette.templating import Jinja2Templates
 
-
 from model.db_init import drop_and_initilize_database
-
 from routes import purine
-
 
 app = FastAPI()
 
@@ -25,8 +19,13 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 app.include_router(purine.router)
 
 
+@app.get("/health-check")
+async def health_check():
+    return {"msg": "I am alive"}
+
+
 @app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request, exc):
+async def validation_exception_handler():
     return HTMLResponse(
         content="""<div class="alert alert-danger" role="alert">
   Error adding product. Verify your input data.

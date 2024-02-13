@@ -1,3 +1,5 @@
+""" Purine table route"""
+
 from typing import Optional
 
 from fastapi import APIRouter, Depends, Form, Header, Request
