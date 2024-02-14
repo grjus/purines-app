@@ -19,7 +19,7 @@ templates = Jinja2Templates(directory="templates")
 
 
 @router.get("/", response_class=HTMLResponse)
-async def purine_table(
+def purine_table(
     request: Request,
     hx_request: Optional[str] = Header(None),
     purine_service: PurineService = Depends(Providers.get_purine_service),
@@ -33,7 +33,6 @@ async def purine_table(
         if show_high == "undefined":
             show_high = None
         context = {
-            "request": request,
             "purines": purine_service.get_all_purines_matching_query(
                 PurineFilter(
                     search,
@@ -42,14 +41,13 @@ async def purine_table(
                 )
             ),
         }
-        return templates.TemplateResponse("purines-rows.html", context)
+        return templates.TemplateResponse(request, "purines-rows.html", context)
 
     context = {
-        "request": request,
         "purines": purine_service.get_all_purines(),
         "purine_group": group_service.get_all_purine_groups(),
     }
-    return templates.TemplateResponse("index.html", context)
+    return templates.TemplateResponse(request, "index.html", context)
 
 
 @router.get("/template/create-purine-modal")
