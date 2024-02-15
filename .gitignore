@@ -1,5 +1,4 @@
 scrapper
-settings.yml
 .idea
 data.db
 *.pyc

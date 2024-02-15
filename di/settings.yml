@@ -1,0 +1,6 @@
+data:
+  url: https://zasadyzywienia.pl/puryny.html
+  table_class: row-hover
+sql:
+  db_path: "./data.db"
+  drop_db: true

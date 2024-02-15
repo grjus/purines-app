@@ -1,0 +1,3 @@
+sql:
+  db_path: ./data.db
+  drop_db: true
