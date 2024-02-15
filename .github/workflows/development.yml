@@ -13,7 +13,7 @@ jobs:
       - uses: ./.github/actions/lint-and-test
   deploy:
     name: Deploy app
-    depends-on: lint-and-test
+    needs: lint-and-test
     runs-on: ubuntu-latest
     concurrency: deploy-group
     steps:
