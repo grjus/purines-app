@@ -1,6 +1,5 @@
 # flyctl launch added from .gitignore
 **/scrapper
-**/settings.yml
 **/.idea
 **/data.db
 **/*.pyc
