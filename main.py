@@ -1,10 +1,9 @@
 """Fast api"""
 
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.staticfiles import StaticFiles
-from starlette.responses import HTMLResponse
 from starlette.templating import Jinja2Templates
 
 from model.db_init import drop_and_initilize_database
@@ -25,12 +24,8 @@ async def health_check():
 
 
 @app.exception_handler(RequestValidationError)
-async def validation_exception_handler():
-    return HTMLResponse(
-        content="""<div class="alert alert-danger" role="alert">
-  Error adding product. Verify your input data.
-</div>"""
-    )
+async def validation_exception_handler(request: Request, _: RequestValidationError):
+    return templates.TemplateResponse(request,"modal/add-product-error.html", status_code=422)
 
 
 if __name__ == "__main__":

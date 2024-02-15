@@ -4,7 +4,7 @@
   <td class="d-flex justify-content-between">
     {{ item.value }}
     <form
-      hx-delete="/api/delete-product/{{item.uuid}}"
+      hx-post="/api/delete-product/{{item.uuid}}"
       hx-target="#table-content"
       hx-include="[name='search'], [name='product-group']"
     >

@@ -1,7 +1,8 @@
 # pylint: disable=no-member
 """ Main app test """
 
-from test.utlis import InMemoryDb
+from uuid import uuid4
+from test.utlis import PURINE_GROUP_UUID, PURINE_UUID, InMemoryDb
 
 import pytest
 from fastapi.testclient import TestClient
@@ -35,7 +36,7 @@ def db_setup():
     test_db = InMemoryDb()
     test_db.init()
     test_db.insert_mock_data()
-    yield
+    yield test_db
     test_db.connection.close()
 
 
@@ -54,7 +55,6 @@ def test_should_show_all_purines_on_main_page():
     assert len(response.context.get("purine_group")) == 2
 
 
-# pylint: disable=no-member
 def test_should_show_filtered_purines_on_request():
     response = client.get(
         "/",
@@ -64,3 +64,48 @@ def test_should_show_filtered_purines_on_request():
     assert response.template.name == "purines-rows.html"
     assert len(response.context.get("purines")) == 1
     assert response.context.get("purines")[0].value == 120
+
+
+def test_should_add_new_product(db_setup):
+    product_name, value, group_uuid = ("MyProduct", 100, PURINE_GROUP_UUID)
+    form_data = {"name": product_name, "value": value, "product_group": group_uuid}
+    response = client.post("/api/add-product", data=form_data)
+    cursor = db_setup.cursor
+    sql = "SELECT * from purine where name= ?"
+    data = cursor.execute(sql, (product_name,)).fetchone()
+    assert response.status_code == 200
+    assert product_name == data[1]
+    assert response.template.name == "modal/add-product-success.html"
+
+def test_should_fail_with_incorrect_new_product_data():
+    product_name, value, group_uuid = ("MyProduct", "invalid", PURINE_GROUP_UUID)
+    form_data = {"name": product_name, "value": value, "product_group": group_uuid}
+    response = client.post("/api/add-product", data=form_data)
+    assert response.status_code == 422
+    assert response.template.name == "modal/add-product-error.html"
+
+
+def test_should_return_modal_content_when_creating_product():
+    response = client.get("/template/create-purine-modal")
+    assert response.status_code == 200
+    assert len(response.context.get("purine_group")) == 2
+    assert response.template.name == "modal/create-product-modal.html"
+
+
+def test_should_return_404_when_deleting_not_existing_product():
+    purine_uuid = str(uuid4())
+    response = client.post(f"/api/delete-product/{purine_uuid}")
+    assert response.status_code == 404
+
+
+def test_should_delete_and_update_table():
+    form_data = {
+        "search":"",
+        "product-group":""
+    }
+    response = client.post(f"/api/delete-product/{PURINE_UUID}", data=form_data)
+    assert response.status_code == 200
+    assert response.template.name == "purines-rows.html"
+    assert len(response.context.get("purines")) == 3
+
+

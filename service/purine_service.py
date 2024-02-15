@@ -28,8 +28,5 @@ class PurineService:
         self.repository.add(entity)
         return True
 
-    def delete_product(self, uuid: str) -> None:
-        product = self.repository.find(uuid)
-        if product is None:
-            raise ValueError(f"Purine with id: {uuid} does not exists")
+    def delete_product(self, uuid: str) ->None:
         self.repository.delete(uuid)

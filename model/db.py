@@ -27,6 +27,7 @@ def open_db(config: DatabaseConfig) -> Generator[sqlite3.Cursor, Any, Any]:
     connection = sqlite3.connect(config.db_path)
     try:
         cursor = connection.cursor()
+        cursor.execute("PRAGMA foreign_keys = ON;")
         yield cursor
     except sqlite3.DatabaseError as error:
         logging.error(error)

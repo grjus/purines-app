@@ -1,10 +1,12 @@
 """Purine repository"""
 
+from math import prod
 import sqlite3
 from dataclasses import dataclass
 
 from loguru import logger
 from pydantic import BaseModel
+from exception import EntityNotFoundException
 
 from model.db import DatabaseConfig, open_db
 from model.repository import Repository
@@ -64,11 +66,13 @@ class PurineRepository(Repository[PurineEntity]):
 
             return [PurineEntity(*each) for each in results]
 
-    def find(self, uuid: str) -> PurineEntity | None:
+    def find(self, uuid: str) -> PurineEntity:
         with open_db(self.db_config) as cursor:
             query = "SELECT * FROM purine WHERE uuid = ?"
             cursor.execute(query, (str(uuid),))
             result = cursor.fetchone()
+            if result is None:
+                raise EntityNotFoundException(f"{self.__class__.__name__} entity {uuid} does not exists")
             return PurineEntity(*result)
 
     def add(self, entity: PurineEntity):
@@ -77,17 +81,14 @@ class PurineRepository(Repository[PurineEntity]):
                 query = "INSERT into purine(uuid, name, value, purine_group_uuid) VALUES (?,?,?,?)"
                 cursor.execute(
                     query,
-                    (*entity.dict().values(),),
+                    (*entity.model_dump().values(),),
                 )
             except sqlite3.DatabaseError as e:
                 logger.error(f"Failed to created an entity: {e}")
 
     def delete(self, uuid: str) -> bool:
+        product = self.find(uuid)
         with open_db(self.db_config) as cursor:
-            try:
-                sql = "DELETE FROM purine WHERE uuid = ?"
-                cursor.execute(sql, (uuid,))
-                return True
-            except sqlite3.DatabaseError as e:
-                logger.error(f"Failed to delete product: {uuid}", e)
-                return False
+            sql = "DELETE FROM purine WHERE uuid = ?"
+            cursor.execute(sql, (product.uuid,))
+            return True
