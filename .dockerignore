@@ -1,0 +1,17 @@
+# flyctl launch added from .gitignore
+**/scrapper
+**/settings.yml
+**/.idea
+**/data.db
+**/*.pyc
+**/*/__pycache__
+
+# flyctl launch added from .idea/.gitignore
+# Default ignored files
+.idea/shelf
+.idea/workspace.xml
+
+# flyctl launch added from .pytest_cache/.gitignore
+# Created by pytest automatically.
+.pytest_cache/**/*
+fly.toml
