@@ -1,13 +1,12 @@
 """Purine repository"""
 
-from math import prod
 import sqlite3
 from dataclasses import dataclass
 
 from loguru import logger
 from pydantic import BaseModel
-from exception import EntityNotFoundException
 
+from exception import EntityNotFoundException
 from model.db import DatabaseConfig, open_db
 from model.repository import Repository
 
@@ -72,7 +71,9 @@ class PurineRepository(Repository[PurineEntity]):
             cursor.execute(query, (str(uuid),))
             result = cursor.fetchone()
             if result is None:
-                raise EntityNotFoundException(f"{self.__class__.__name__} entity {uuid} does not exists")
+                raise EntityNotFoundException(
+                    f"{self.__class__.__name__} entity {uuid} does not exists"
+                )
             return PurineEntity(*result)
 
     def add(self, entity: PurineEntity):

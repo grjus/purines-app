@@ -1,8 +1,8 @@
 # pylint: disable=no-member
 """ Main app test """
 
-from uuid import uuid4
 from test.utlis import PURINE_GROUP_UUID, PURINE_UUID, InMemoryDb
+from uuid import uuid4
 
 import pytest
 from fastapi.testclient import TestClient
@@ -31,7 +31,7 @@ app.dependency_overrides[Providers.get_purine_service] = override_purine_service
 app.dependency_overrides[Providers.get_group_service] = override_group_service
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture(name="db", autouse=True)
 def db_setup():
     test_db = InMemoryDb()
     test_db.init()
@@ -66,16 +66,17 @@ def test_should_show_filtered_purines_on_request():
     assert response.context.get("purines")[0].value == 120
 
 
-def test_should_add_new_product(db_setup):
+def test_should_add_new_product(db):
     product_name, value, group_uuid = ("MyProduct", 100, PURINE_GROUP_UUID)
     form_data = {"name": product_name, "value": value, "product_group": group_uuid}
     response = client.post("/api/add-product", data=form_data)
-    cursor = db_setup.cursor
+    cursor = db.cursor
     sql = "SELECT * from purine where name= ?"
     data = cursor.execute(sql, (product_name,)).fetchone()
     assert response.status_code == 200
     assert product_name == data[1]
     assert response.template.name == "modal/add-product-success.html"
+
 
 def test_should_fail_with_incorrect_new_product_data():
     product_name, value, group_uuid = ("MyProduct", "invalid", PURINE_GROUP_UUID)
@@ -99,13 +100,8 @@ def test_should_return_404_when_deleting_not_existing_product():
 
 
 def test_should_delete_and_update_table():
-    form_data = {
-        "search":"",
-        "product-group":""
-    }
+    form_data = {"search": "", "product-group": ""}
     response = client.post(f"/api/delete-product/{PURINE_UUID}", data=form_data)
     assert response.status_code == 200
     assert response.template.name == "purines-rows.html"
     assert len(response.context.get("purines")) == 3
-
-

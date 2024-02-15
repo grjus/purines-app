@@ -1,9 +1,8 @@
 """ Purine table route"""
 
-from email import message
 from typing import Optional
 
-from fastapi import APIRouter, Depends, Form, HTTPException, Header, Request
+from fastapi import APIRouter, Depends, Form, Header, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from loguru import logger
@@ -112,4 +111,4 @@ async def delete_product(
         return templates.TemplateResponse(request, "purines-rows.html", context=context)
     except EntityNotFoundException as e:
         logger.error(f"Failed to delete product: {product_uuid}", e)
-        raise HTTPException(detail=e.message, status_code=404)
+        raise HTTPException(detail=e.message, status_code=404) from e
