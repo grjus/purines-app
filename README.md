@@ -24,10 +24,7 @@ The Purine Content Tracker is a simple application designed to list the amount o
 ### Setup and Installation
 
 1. **Clone the Repository**
-    ```bash
-    git clone https://github.com/yourusername/purine-content-tracker.git
-    cd purine-content-tracker
-    ```
+ 
 
 2. **Build the Docker Container**
     ```bash
